@@ -73,6 +73,7 @@ border-radius: 5px;
     <th>Issue Date</th>
     <th>Expiry Date</th>
     <th>Fine</th>
+    <th>Status</th>
     </tr>
     </thead>
     <tfoot>
@@ -91,7 +92,12 @@ border-radius: 5px;
           <td>{{t.3}}</td>
           <td>{{t.4}}</td>
           <td>{{t.5}}</td>
-          <td>{{t.6}}</td>
+          <td> {% if t.7 == "Returned" %}
+            No Fine
+            {% else %}
+            {{t.6}}
+          {% endif %}</td>
+          <td>{{t.7}}</td>
         </tr>
         {%endfor%}
     </tbody>

@@ -45,5 +45,10 @@ class IssuedBook(models.Model):
     isbn=models.CharField(max_length=30)
     issuedate=models.DateField(auto_now=True)
     expirydate=models.DateField(default=get_expiry)
+    statuschoice= [
+        ('Issued', 'Issued'),
+        ('Returned', 'Returned'),
+        ]
+    status=models.CharField(max_length=20,choices=statuschoice,default="Issued")
     def __str__(self):
         return self.enrollment

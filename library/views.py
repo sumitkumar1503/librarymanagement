@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import HttpResponseRedirect
 from . import forms,models
 from django.http import HttpResponseRedirect
@@ -29,21 +29,6 @@ def adminclick_view(request):
 
 
 
-def adminsignup_view(request):
-    form=forms.AdminSigupForm()
-    if request.method=='POST':
-        form=forms.AdminSigupForm(request.POST)
-        if form.is_valid():
-            user=form.save()
-            user.set_password(user.password)
-            user.save()
-
-
-            my_admin_group = Group.objects.get_or_create(name='ADMIN')
-            my_admin_group[0].user_set.add(user)
-
-            return HttpResponseRedirect('adminlogin')
-    return render(request,'library/adminsignup.html',{'form':form})
 
 
 
@@ -75,12 +60,18 @@ def studentsignup_view(request):
 
 
 def is_admin(user):
-    return user.groups.filter(name='ADMIN').exists()
+    if user.is_superuser or user.is_staff:
+        return True
+    else:
+        return False
 
+def is_student(user):
+    return user.groups.filter(name='STUDENT').exists()
 def afterlogin_view(request):
     if is_admin(request.user):
         return render(request,'library/adminafterlogin.html')
-    else:
+    
+    elif(is_student(request.user)):
         return render(request,'library/studentafterlogin.html')
 
 
@@ -144,7 +135,7 @@ def viewissuedbook_view(request):
         students=list(models.StudentExtra.objects.filter(enrollment=ib.enrollment))
         i=0
         for l in books:
-            t=(students[i].get_name,students[i].enrollment,books[i].name,books[i].author,issdate,expdate,fine)
+            t=(students[i].get_name,students[i].enrollment,books[i].name,books[i].author,issdate,expdate,fine,ib.status)
             i=i+1
             li.append(t)
 
@@ -180,11 +171,15 @@ def viewissuedbookbystudent(request):
         if d>15:
             day=d-15
             fine=day*10
-        t=(issdate,expdate,fine)
+        t=(issdate,expdate,fine,ib.status,ib.id)
         li2.append(t)
 
     return render(request,'library/viewissuedbookbystudent.html',{'li1':li1,'li2':li2})
-
+def returnbook(request, id):
+    issued_book = models.IssuedBook.objects.get(pk=id)
+    issued_book.status = "Returned"
+    issued_book.save()
+    return redirect('viewissuedbookbystudent')
 def aboutus_view(request):
     return render(request,'library/aboutus.html')
 

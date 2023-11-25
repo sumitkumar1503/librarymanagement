@@ -10,11 +10,6 @@ class ContactusForm(forms.Form):
 
 
 
-class AdminSigupForm(forms.ModelForm):
-    class Meta:
-        model=User
-        fields=['first_name','last_name','username','password']
-
 
 
 class StudentUserForm(forms.ModelForm):
